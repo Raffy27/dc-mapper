@@ -1,17 +1,11 @@
 const config = require('./config/config.json'),
-    login = require('./logic/login');
+    login = require('./logic/login'),
+    initSearch = require('./logic/search');
 const { Builder, By, until, Key } = require('selenium-webdriver');
 const { Options } = require('selenium-webdriver/chrome');
+const { Graph } = require('graphlib');
 
-async function initSearch(){
-    const sb = await drv.wait(until.elementLocated(locators.get('Search')));
-    
-    await sb.sendKeys('discord.gg', Key.ENTER);
 
-    items.set('Results', await drv.wait(
-        until.elementLocated(locators.get('Results'))
-    ));
-}
 
 async function getMessages(){
     let arr = await items.get('Results').findElements(locators.get('Message'));
@@ -30,12 +24,20 @@ async function main(){
         .setChromeOptions(opt)
         .build();
 
-    const roots = require('./iterators/roots')(drv);
+    const roots = require('./iterators/roots')(drv),
+        pages = require('./iterators/pages')(drv);
     
     await login(drv);
+
+    let g = new Graph();
     
-    for await (let srv of roots){
-        console.log(srv);
+    for await (let { id, ...val } of roots){
+        console.log(id, val);
+        g.setNode(id, val);
+        await initSearch(drv);
+        for await (let page of pages){
+            console.log(page);
+        }
         /*let list = new Set();
         await initSearch();
         let messages = await getMessages();
@@ -48,6 +50,8 @@ async function main(){
         }
         console.log(list);*/
     }
+
+    await drv.quit();
 
 }
 

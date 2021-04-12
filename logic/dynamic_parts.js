@@ -7,7 +7,8 @@ module.exports = {
         ['Servers', By.xpath('//div[@aria-label="Servers"]')],
         ['Header', By.xpath('//header/h1')],
         ['Search', By.xpath('//div[@aria-label="Search"]//div[@data-contents="true"]')],
-        ['Results', By.id('search-results')],
+        ['SearchStatus', By.xpath('//section[@aria-label="Search Results"]//div[@role="status"]')],
+        ['Next', By.xpath('//nav//button[@rel="next"]')],
         ['Message', By.xpath('div[@role="group"]')]
     ])
 };
