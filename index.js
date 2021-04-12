@@ -8,11 +8,10 @@ let drv;
 const locators = new Map([
     ['Body', By.xpath('//body')],
     ['Servers', By.xpath('//div[@aria-label="Servers"]')],
-    ['Server',  By.xpath('//div[@role="treeitem"]')],
     ['Header', By.xpath('//header/h1')],
     ['Search', By.xpath('//div[@aria-label="Search"]//div[@data-contents="true"]')],
-    ['Results', By.xpath('//div[@id="search-results"]')],
-    ['Message', By.xpath('//div[@role="listitem"]')]
+    ['Results', By.id('search-results')],
+    ['Message', By.xpath('div[@role="group"]')]
 ]);
 let items = new Map();
 
@@ -101,8 +100,15 @@ async function main(){
     for await (let srv of servers){
         console.log(srv);
         await initSearch();
-        let msgs = getMessages();
-        console.log(msgs);
+        let messages = await getMessages();
+        for(const msg of messages){
+            let inv;
+            do {
+                inv = /discord\.gg/gm.exec(msg);
+                if(!inv) break;
+                console.log(inv);
+            } while(inv);
+        }
         break;
     }
 
