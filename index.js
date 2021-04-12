@@ -1,49 +1,7 @@
+const config = require('./config/config.json'),
+    login = require('./logic/login');
 const { Builder, By, until, Key } = require('selenium-webdriver');
 const { Options } = require('selenium-webdriver/chrome');
-
-/**
- * @type import('selenium-webdriver').WebDriver
- */
-let drv;
-const locators = new Map([
-    ['Body', By.xpath('//body')],
-    ['Servers', By.xpath('//div[@aria-label="Servers"]')],
-    ['Header', By.xpath('//header/h1')],
-    ['Search', By.xpath('//div[@aria-label="Search"]//div[@data-contents="true"]')],
-    ['Results', By.id('search-results')],
-    ['Message', By.xpath('div[@role="group"]')]
-]);
-let items = new Map();
-
-const asyncIterator = {
-    next: async () => {
-        const url = await drv.getCurrentUrl();
-        await items.get('Body').sendKeys(Key.CONTROL, Key.ALT, Key.ARROW_DOWN, Key.NULL);
-        const ch = await new Promise(async r => {
-            let current;
-            do {
-                current = await drv.getCurrentUrl();
-            } while(current == url);
-            r(current);
-        });
-
-        if(ch.includes('/channels/@me')){
-            return Promise.resolve({ done: true });
-        }
-
-        return Promise.resolve({
-            value: {
-                id: ch.split('/').slice(-2)[0],
-                name: await (await drv.findElement(locators.get('Header'))).getText()
-            },
-            done: false
-        });
-    }
-};
-  
-const servers = {
-    [Symbol.asyncIterator]: () => asyncIterator
-};
 
 async function initSearch(){
     const sb = await drv.wait(until.elementLocated(locators.get('Search')));
@@ -63,61 +21,34 @@ async function getMessages(){
     return arr;
 }
 
-async function login(){
-    await drv.get('https://discord.com/login');
-    await drv.executeScript(() => {
-
-        function regenLS() {
-            const iframe = document.createElement('iframe');
-            document.head.append(iframe);
-            const pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage');
-            iframe.remove();
-            return pd;
-        }
-
-        Object.defineProperty(window, 'localStorage', regenLS());
-        
-        localStorage.setItem('token', '"ODI1ODM3ODIzNDcwNzMxMzM1.YGbkmw.9LymwvoyEPGDLlG2tn6TJlOEO9s"');
-        location.reload();
-
-    });
-
-    items.set('Servers', await drv.wait(
-        until.elementLocated(locators.get('Servers'))
-    ));
-}
-
 async function main(){
     let opt = new Options()
-        .setBinaryPath('C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe');
+        .setBinaryPath(config.browser.binary);
         
-    drv = await new Builder()
-        .forBrowser('chrome')
+    const drv = await new Builder()
+        .forBrowser(config.browser.name)
         .setChromeOptions(opt)
         .build();
+
+    const roots = require('./iterators/roots')(drv);
     
-    await login();
-    items.set('Body', await drv.findElement(locators.get('Body')));
+    await login(drv);
     
-    for await (let srv of servers){
+    for await (let srv of roots){
         console.log(srv);
-        let list = new Set();
+        /*let list = new Set();
         await initSearch();
         let messages = await getMessages();
         for(const msg of messages){
-            let invs = msg.match(/discord\.gg\/[a-zA-Z0-9]*/gm);
+            let invs = msg.match(/discord\.gg\/[a-zA-Z0-9]+/gm);
             if(!invs) continue;
             for(const inv of invs){
                 list.add(inv);
             }
         }
-        console.log(list);
+        console.log(list);*/
     }
-
-    await new Promise(r => setTimeout(r, 5000));
-
-    await drv.quit();
 
 }
 
-main()
+main();
