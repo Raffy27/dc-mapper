@@ -57,7 +57,9 @@ async function initSearch(){
 
 async function getMessages(){
     let arr = await items.get('Results').findElements(locators.get('Message'));
-    arr = arr.map(async v => await v.getText());
+    for(let i = 0; i < arr.length; i++){
+        arr[i] = await arr[i].getText();
+    }
     return arr;
 }
 
@@ -99,17 +101,17 @@ async function main(){
     
     for await (let srv of servers){
         console.log(srv);
+        let list = new Set();
         await initSearch();
         let messages = await getMessages();
         for(const msg of messages){
-            let inv;
-            do {
-                inv = /discord\.gg/gm.exec(msg);
-                if(!inv) break;
-                console.log(inv);
-            } while(inv);
+            let invs = msg.match(/discord\.gg\/[a-zA-Z0-9]*/gm);
+            if(!invs) continue;
+            for(const inv of invs){
+                list.add(inv);
+            }
         }
-        break;
+        console.log(list);
     }
 
     await new Promise(r => setTimeout(r, 5000));
