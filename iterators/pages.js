@@ -1,5 +1,5 @@
 const { Parts } = require('../logic/dynamic_parts'),
-    { By, until } = require('selenium-webdriver');
+    { until } = require('selenium-webdriver');
 
 /**
  * 

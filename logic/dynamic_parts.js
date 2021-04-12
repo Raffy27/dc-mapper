@@ -9,6 +9,6 @@ module.exports = {
         ['Search', By.xpath('//div[@aria-label="Search"]//div[@data-contents="true"]')],
         ['SearchStatus', By.xpath('//section[@aria-label="Search Results"]//div[@role="status"]')],
         ['Next', By.xpath('//nav//button[@rel="next"]')],
-        ['Message', By.xpath('div[@role="group"]')]
+        ['Result', By.xpath('//div[@aria-label="Search Result"]')]
     ])
 };
