@@ -1,6 +1,7 @@
 const config = require('./config/config.json'),
     login = require('./logic/login'),
     initSearch = require('./logic/search'),
+    invite = require('./logic/invite'),
     { Builder } = require('selenium-webdriver'),
     { Options } = require('selenium-webdriver/chrome'),
     { Graph } = require('graphlib');
@@ -23,16 +24,39 @@ async function main(){
     let g = new Graph();
     
     for await (let { id, ...val } of roots){
-        console.log(id, val);
+        console.log(val.name);
 
-        g.setNode(id, val);
+        g.setNode(id, {
+            processed: true,
+            root: true,
+            ...val
+        });
         await initSearch(drv);
 
+        let set = new Set();
         for await (let page of pages){
-            console.log(page);
+            process.stdout.write(`\r\tPage: ${page}`);
             const invs = await messages.getInvites();
-            for(const inv of invs){
-                console.log('\t'+inv);
+            set = new Set([...set, ...invs]);
+        }
+        console.log(`\n\tFound ${set.size} unique invites`);
+
+        let vx = new Set();
+        for(const inv of set){
+            try {
+                let code = invite.getCode(inv);
+                process.stdout.write(`\t${code} --> `);
+                let info = await invite.getDetails(code);
+                g.setNode(info.guild.id, {
+                    processed: false,
+                    root: false,
+                    name: info.guild.name
+                });
+                vx.add({ id: info.guild.id, name: info.guild.name });
+                console.log(info.guild.name);
+            } catch (err) {
+                console.log(err.message);
+                //Invalid invite encountered, no worries
             }
         }
 

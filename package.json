@@ -9,7 +9,7 @@
   "author": "Raffy27",
   "license": "MIT",
   "dependencies": {
-    "discord-inv": "^1.1.0",
+    "axios": "^0.21.1",
     "graphlib": "^2.1.8",
     "selenium-webdriver": "^4.0.0-beta.2"
   }

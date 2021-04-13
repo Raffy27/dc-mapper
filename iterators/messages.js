@@ -26,9 +26,7 @@ module.exports = (drv) => {
             for(const msg of messages){
                 let invs = msg.match(/discord\.gg\/[a-zA-Z0-9]+/gm);
                 if(!invs) continue;
-                for(const inv of invs){
-                    set.add(inv);
-                }
+                set = new Set([...set, ...invs]);
             }
             return set;
         }
