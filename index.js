@@ -46,13 +46,16 @@ async function main(){
             try {
                 let code = invite.getCode(inv);
                 process.stdout.write(`\t${code} --> `);
+
                 let info = await invite.getDetails(code);
                 g.setNode(info.guild.id, {
                     processed: false,
                     root: false,
                     name: info.guild.name
                 });
+                g.setEdge(id, info.guild.id);
                 vx.add({ id: info.guild.id, name: info.guild.name });
+                
                 console.log(info.guild.name);
             } catch (err) {
                 console.log(err.message);

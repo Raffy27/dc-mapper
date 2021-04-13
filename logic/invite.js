@@ -1,4 +1,6 @@
-const axios = require('axios').default;
+const got = require('got'),
+    tunnel = require('tunnel'),
+    proxy = require('./proxy');
 
 module.exports = {
 
@@ -12,20 +14,34 @@ module.exports = {
 
     async getDetails(code){
         try {
-            const res = await axios.get(`https://discord.com/api/v8/invites/${code}?with_counts=true`);
-            return res.data;
-        } catch (err) {
-            switch(err.response?.status){
-                case 429:
-                    console.log('Rate limit:', err.response.headers['retry-after']);
-                    //Change proxy
-                    return await this.getDetails(code);
-                    break;
-                case 404:
-                    throw new Error('Invalid Invite');
-                default:
-                    throw err;
+            const p = proxy.get();
+            console.log(p);
+            let options = {
+                responseType: 'json',
+                retry: 0
+            };
+            if(p){
+                options.agent = {
+                    https: tunnel.httpsOverHttp({
+                        proxy: p
+                    })
+                };
             }
+            const { body } = await got(`https://discord.com/api/v8/invites/${code}?with_counts=true`, options);
+            return body;
+        } catch (err) {
+            if(err instanceof got.HTTPError){
+                switch(err.response.statusCode){
+                    case 429:
+                        const wait = Number(err.response.headers['retry-after']);
+                        console.log('Rate limit:', wait);
+                        await proxy.rotate(wait);
+                        return await this.getDetails(code);
+                    case 404:
+                        throw new Error('Invalid Invite');
+                }
+            }
+            throw err;
         }
     }
 
