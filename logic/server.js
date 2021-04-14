@@ -1,6 +1,10 @@
 const { By, Key, until } = require('selenium-webdriver'),
     { Parts } = require('./dynamic_parts');
 
+async function wait(ms){
+    return new Promise(r => setTimeout(r, ms));
+}
+
 /**
  * 
  * @param {import('selenium-webdriver').WebDriver} drv 
@@ -12,19 +16,26 @@ async function join(drv, inv){
     const btn = drv.findElement(Parts.get('Join'));
     await drv.wait(until.elementIsVisible(btn));
     await btn.click();
+
     const txt = drv.findElement(Parts.get('JoinInput'));
     await txt.sendKeys(inv, Key.ENTER);
-    await new Promise(r => setTimeout(r, 1000));
-    const x = drv.findElement(By.xpath('//div[@role="dialog"]//button'));
-    await x.click();
+    await wait(1000);
+
+    try {
+        const x = drv.findElement(Parts.get('DialogX'));
+        await x.click();
+    } catch {}
+    await wait(500);
 }
 
 async function leave(drv){
     await drv.findElement(By.css('header')).click();
-    const btn = drv.findElement(Parts.get('Leave'));
-    await drv.wait(until.elementIsVisible(btn));
-    await btn.click();
-    await drv.findElement(By.css('body')).sendKeys(Key.ENTER);
+    for(let i = 0; i < 2; i++){
+        const btn = drv.findElement(Parts.get('Leave'));
+        await drv.wait(until.elementIsVisible(btn));
+        await btn.click();
+    }
+    await wait(500);
 }
 
 module.exports = {
