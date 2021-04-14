@@ -9,7 +9,7 @@ module.exports = (drv) => {
     return {
 
         async getMessages(){
-            await drv.wait(until.elementLocated(Parts.get('Result')));
+            await drv.wait(until.elementLocated(Parts.get('Result')), 5000);
             let arr = await drv.findElements(Parts.get('Result'));
             for(let i = 0; i < arr.length; i++){
                 arr[i] = await arr[i].getText();
@@ -28,7 +28,7 @@ module.exports = (drv) => {
                 if(!invs) continue;
                 set = new Set([...set, ...invs]);
             }
-            return set;
+            return [...set];
         }
 
     }

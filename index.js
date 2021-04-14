@@ -2,9 +2,13 @@ const config = require('./config/config.json'),
     login = require('./logic/login'),
     initSearch = require('./logic/search'),
     invite = require('./logic/invite'),
+    { join, leave } = require('./logic/server'),
     { Builder } = require('selenium-webdriver'),
     { Options } = require('selenium-webdriver/chrome'),
-    { Graph } = require('graphlib');
+    graphlib = require('graphlib'),
+    fs = require('fs/promises');
+
+require('./logic/events');
 
 /**
  * @type import('selenium-webdriver').WebDriver
@@ -12,23 +16,25 @@ const config = require('./config/config.json'),
 let drv;
 // Dynamically initialized middleware
 let roots, pages, messages;
-let g = new Graph();
+let g = new graphlib.Graph();
 
 async function processServer(id){
     await initSearch(drv);
 
-    let set = new Set();
+    let codes = new Set();
     for await (let page of pages){
+        if(global.stopping) return new Map();
         process.stdout.write(`\r\tPage: ${page}`);
-        const invs = await messages.getInvites();
-        set = new Set([...set, ...invs]);
+        let arr = await messages.getInvites();
+        arr = arr.map(link => invite.getCode(link));
+        codes = new Set([...codes, ...arr]);
     }
-    console.log(`\n\tFound ${set.size} unique invites`);
+    console.log(`\nFound ${codes.size} unique invites`);
 
-    let vx = new Set();
-    for(const inv of set){
+    let srv = new Map();
+    for(const code of codes){
+        if(global.stopping) return new Map();
         try {
-            let code = invite.getCode(inv);
             process.stdout.write(`\t${code.padEnd(10)}\t-->\t`);
 
             let info = await invite.getDetails(code);
@@ -38,9 +44,11 @@ async function processServer(id){
                     root: false,
                     name: info.guild.name
                 });
+                if(!config.blacklist.includes(info.guild.id)){
+                    srv.set(info.guild.id, code);
+                }
             }
             g.setEdge(id, info.guild.id);
-            vx.add(info.guild.id);
             
             console.log(info.guild.name);
         } catch (err) {
@@ -48,8 +56,9 @@ async function processServer(id){
             //Invalid invite encountered, no worries
         }
     }
+    console.log(`Found ${srv.size} unique servers`);
 
-    return vx;
+    return srv;
 }
 
 async function main(){
@@ -67,25 +76,40 @@ async function main(){
     
     await login(drv);
 
-    let queue = new Set();
+    let queue = new Map();
     
     for await (let { id, ...val } of roots){
+        if(global.stopping) break;
         console.log(val.name);
-
         g.setNode(id, {
             root: true,
             ...val
         });
-        
-        queue = new Set([...queue, ...await processServer(drv, id)]);
-
+        queue = new Map([...queue, ...await processServer(id)]);
+        break;
     }
 
-    console.log('Done!');
-    console.log(queue);
+    while(!global.stopping && queue.size){
+        let found = new Map();
+        for(const [id, inv] of queue){
+            console.log(inv);
+            await join(drv, inv);
+            found = new Map([...found, ...await processServer(id)]);
+            await leave(drv);
+        }
+        queue = found;
+        console.log('Iteration complete');
+    }
 
-    await drv.quit();
+    try {
+        await drv.quit();
+    } catch {}
 
 }
 
-main();
+main().then(async (_, err) => {
+    console.log('Dumping everything to disk...');
+    const j = graphlib.json.write(g);
+    await fs.writeFile('graph.json', j);
+    console.log('Done!');
+});

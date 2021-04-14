@@ -3,5 +3,9 @@
     "browser": {
         "name": "chrome",
         "binary": "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
-    }
+    },
+    "blacklist": [
+        "333355888058302465",
+        "305129477627969547"
+    ]
 }

@@ -5,7 +5,7 @@ for(let i = 0; i < proxies.length; i++){
     proxies[i].blocked = false;
 }
 
-let index = -1;
+let index = 0;
 
 module.exports = {
     
