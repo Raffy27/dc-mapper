@@ -15,7 +15,6 @@ module.exports = {
     async getDetails(code){
         try {
             const p = proxy.get();
-            console.log(p);
             let options = {
                 responseType: 'json',
                 retry: 0
@@ -34,11 +33,10 @@ module.exports = {
                 switch(err.response.statusCode){
                     case 429:
                         const wait = Number(err.response.headers['retry-after']);
-                        console.log('Rate limit:', wait);
                         await proxy.rotate(wait);
                         return await this.getDetails(code);
                     case 404:
-                        throw new Error('Invalid Invite');
+                        throw new Error('Invalid');
                 }
             }
             throw err;

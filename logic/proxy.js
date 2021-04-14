@@ -24,7 +24,6 @@ module.exports = {
             let r = new Date();
             r.setSeconds(r.getSeconds() + retry);
             proxies[index].retry = r;
-            console.log(proxies[index]);
         }
 
         if(index < proxies.length - 1){
@@ -32,14 +31,13 @@ module.exports = {
         } else {
             index = 0;
         }
+        process.stdout.write(`...\n[Switching proxies --> ${proxies[index].host}]\n\t\t\t\t`);
 
         if(proxies[index].blocked){
-            console.log('All proxies are blocked');
             let wait = proxies[index].retry - new Date();
             if(wait > 0){
-                console.log('Waiting', wait, 'ms');
+                console.log('Waiting', wait + 'ms');
                 await new Promise(r => setTimeout(r, wait));
-                console.log('Waiting done');
             }
             proxies[index].blocked = false;
         }
