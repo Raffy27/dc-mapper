@@ -39,6 +39,11 @@ module.exports = {
                         throw new Error('Invalid');
                 }
             }
+            if(err instanceof got.RequestError){
+                //Proxy server doesn't like us
+                await proxy.rotate();
+                return await this.getDetails('code');
+            }
             throw err;
         }
     }

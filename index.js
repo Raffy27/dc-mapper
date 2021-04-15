@@ -38,19 +38,20 @@ async function processServer(id){
             process.stdout.write(`\t${code.padEnd(10)}\t-->\t`);
 
             let info = await invite.getDetails(code);
+            console.log(info.guild.name);
             if(info.guild.id == id) continue;
             if(!g.hasNode(info.guild.id)){
                 g.setNode(info.guild.id, {
                     root: false,
-                    name: info.guild.name
+                    name: info.guild.name,
+                    icon: info.guild.icon,
+                    count: info.guild.approximate_member_count
                 });
                 if(!config.blacklist.includes(info.guild.id)){
-                    srv.set(info.guild.id, code);
+                    srv.set(info.guild.id, { code, name: info.guild.name });
                 }
             }
             g.setEdge(id, info.guild.id);
-            
-            console.log(info.guild.name);
         } catch (err) {
             console.log(err.message);
             //Invalid invite encountered, no worries
@@ -86,30 +87,29 @@ async function main(){
             ...val
         });
         queue = new Map([...queue, ...await processServer(id)]);
-        break;
     }
-
-    while(!global.stopping && queue.size){
-        let found = new Map();
-        for(const [id, inv] of queue){
-            console.log(inv);
-            await join(drv, inv);
-            found = new Map([...found, ...await processServer(id)]);
-            await leave(drv);
-        }
-        queue = found;
-        console.log('Iteration complete');
-    }
-
+    
     try {
+        while(!global.stopping && queue.size){
+            let found = new Map();
+            for(const [id, { inv, name }] of queue){
+                console.log(name);
+                await join(drv, inv);
+                found = new Map([...found, ...await processServer(id)]);
+                await leave(drv);
+            }
+            queue = found;
+            console.log('Iteration complete');
+        }
+
         await drv.quit();
     } catch {}
 
 }
 
-main().then(async (_, err) => {
+main().catch(err => { console.error(err); }).then(async () => {
     console.log('Dumping everything to disk...');
-    const j = graphlib.json.write(g);
+    const j = JSON.stringify(graphlib.json.write(g));
     await fs.writeFile('graph.json', j);
     console.log('Done!');
 });
