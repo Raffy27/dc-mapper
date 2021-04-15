@@ -20,12 +20,15 @@ async function join(drv, inv){
     const txt = drv.findElement(Parts.get('JoinInput'));
     await txt.sendKeys(inv, Key.ENTER);
     await wait(1000);
+    const check = await drv.findElements(Parts.get('Invalid'));
+    if(check.length > 0) return false;
 
     try {
         const x = drv.findElement(Parts.get('DialogX'));
         await x.click();
     } catch {}
     await wait(500);
+    return true;
 }
 
 async function leave(drv){

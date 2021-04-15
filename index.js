@@ -96,7 +96,11 @@ async function main(){
             let found = new Map();
             for(const [id, { code, name }] of queue){
                 console.log(name);
-                await join(drv, code);
+                let ok = await join(drv, code);
+                if(!ok){
+                    console.log('\tCould not join server (banned?)');
+                    continue;
+                }
                 found = new Map([...found, ...await processServer(id)]);
                 await leave(drv);
             }

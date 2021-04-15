@@ -11,6 +11,7 @@ module.exports = {
         ['Result', By.xpath('//div[@aria-label="Search Result"]')],
         ['Join', By.xpath('//div[@role="dialog"]//div[text()="Join a Server"]/..')],
         ['JoinInput', By.xpath('//div[@role="dialog"]//input')],
+        ['Invalid', By.xpath('//span[contains(text(),"invalid")]')],
         ['DialogX', By.xpath('//div[@role="dialog"]//button')],
         ['Leave', By.xpath('//div[text()="Leave Server"]/..')]
     ])
