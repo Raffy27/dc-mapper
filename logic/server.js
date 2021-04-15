@@ -31,7 +31,7 @@ async function join(drv, inv){
 async function leave(drv){
     await drv.findElement(By.css('header')).click();
     for(let i = 0; i < 2; i++){
-        const btn = drv.findElement(Parts.get('Leave'));
+        const btn = await drv.wait(until.elementLocated(Parts.get('Leave')));
         await drv.wait(until.elementIsVisible(btn));
         await btn.click();
     }

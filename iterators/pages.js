@@ -14,24 +14,27 @@ module.exports = (drv) => {
             let text;
             await drv.wait(async _drv => {
                 text = await status.getText();
-                return !text.includes('Searching');
+                return !text.includes('Searching') || text.includes('Indexing');
             });
             if(text.includes('No Results')) return;
+            //Servers that are not yet indexed will be skipped
+            if(text.includes('Indexing')) return;
             yield counter++;
 
             while(true){
                 let next;
                 try {
-                    next = await drv.wait(until.elementLocated(Parts.get('Next')), 4000);
-                } catch {
+                    next = drv.findElement(Parts.get('Next'));
+                    if(!(await next.isEnabled())){
+                        //This is the last page
+                        return;
+                    }
+                    await next.click();
+                } catch(err) {
+                    console.log(err.message);
                     //No Next button, there had to be a single page
                     return;
                 }
-                if(!(await next.isEnabled())){
-                    //This is the last page
-                    return;
-                }
-                await next.click();
                 yield counter++;
             }
         }

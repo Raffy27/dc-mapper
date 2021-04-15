@@ -41,8 +41,8 @@ module.exports = {
             }
             if(err instanceof got.RequestError){
                 //Proxy server doesn't like us
-                await proxy.rotate();
-                return await this.getDetails('code');
+                await proxy.rotate(0);
+                return await this.getDetails(code);
             }
             throw err;
         }

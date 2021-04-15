@@ -90,24 +90,27 @@ async function main(){
     }
     
     try {
+        let level = 1;
         while(!global.stopping && queue.size){
+            console.log(`BFS level ${level}`);
             let found = new Map();
-            for(const [id, { inv, name }] of queue){
+            for(const [id, { code, name }] of queue){
                 console.log(name);
-                await join(drv, inv);
+                await join(drv, code);
                 found = new Map([...found, ...await processServer(id)]);
                 await leave(drv);
             }
             queue = found;
-            console.log('Iteration complete');
         }
 
         await drv.quit();
-    } catch {}
+    } catch (err) { 
+        console.warn(err);
+    }
 
 }
 
-main().catch(err => { console.error(err); }).then(async () => {
+main().catch(() => {}).then(async () => {
     console.log('Dumping everything to disk...');
     const j = JSON.stringify(graphlib.json.write(g));
     await fs.writeFile('graph.json', j);
