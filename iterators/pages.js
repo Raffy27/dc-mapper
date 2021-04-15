@@ -31,7 +31,6 @@ module.exports = (drv) => {
                     }
                     await next.click();
                 } catch(err) {
-                    console.log(err.message);
                     //No Next button, there had to be a single page
                     return;
                 }

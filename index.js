@@ -16,7 +16,7 @@ require('./logic/events');
 let drv;
 // Dynamically initialized middleware
 let roots, pages, messages;
-let g = new graphlib.Graph();
+global.g = new graphlib.Graph();
 
 async function processServer(id){
     await initSearch(drv);
@@ -77,9 +77,9 @@ async function main(){
     
     await login(drv);
 
-    let queue = new Map();
+    let queue = new Map([['whatever', { code: '4RXbWnc', name: 'Infinite' }]]);
     
-    for await (let { id, ...val } of roots){
+    /*for await (let { id, ...val } of roots){
         if(global.stopping) break;
         console.log(val.name);
         g.setNode(id, {
@@ -87,7 +87,7 @@ async function main(){
             ...val
         });
         queue = new Map([...queue, ...await processServer(id)]);
-    }
+    }*/
     
     try {
         let level = 1;
