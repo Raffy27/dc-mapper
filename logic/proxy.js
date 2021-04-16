@@ -42,7 +42,7 @@ module.exports = {
                 minWait = proxies[j].retry;
             }
         }
-        let wait = minWait - new Date();
+        let wait = new Date() - minWait;
         process.stdout.write(`...\n[Waiting for a free proxy --> ${proxies[index].host} (${wait}ms)]\n\t\t\t\t`);
         global.ac = new AbortController();
         await setTimeout(wait, null, { signal: global.ac.signal });

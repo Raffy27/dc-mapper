@@ -10,6 +10,7 @@ process.on('SIGINT', function() {
             console.log('Bye now');
             process.exit(-1);
         });
+        return;
     }
     console.log('\rShutting down...');
     global.stopping = true;

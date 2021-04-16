@@ -13,11 +13,15 @@ module.exports = {
     },
 
     async getDetails(code){
+        if(global.stopping){
+            throw new Error('Stopping');
+        }
         try {
             const p = proxy.get();
             let options = {
                 responseType: 'json',
-                retry: 0
+                retry: 0,
+                timeout: 10000
             };
             if(p){
                 options.agent = {
@@ -39,7 +43,7 @@ module.exports = {
                         throw new Error('Invalid');
                 }
             }
-            if(err instanceof got.RequestError){
+            if(err instanceof got.RequestError || err instanceof got.TimeoutError){
                 //Proxy server doesn't like us
                 await proxy.rotate(0);
                 return await this.getDetails(code);

@@ -19,15 +19,16 @@ async function join(drv, inv){
 
     const txt = drv.findElement(Parts.get('JoinInput'));
     await txt.sendKeys(inv, Key.ENTER);
-    await wait(1000);
+    await wait(2500);
     const check = await drv.findElements(Parts.get('Invalid'));
     if(check.length > 0) return false;
 
     try {
-        const x = drv.findElement(Parts.get('DialogX'));
+        const x = await drv.wait(until.elementLocated(Parts.get('DialogX')), 3000);
         await x.click();
     } catch {}
-    await wait(500);
+    await wait(1700);
+
     return true;
 }
 
@@ -38,7 +39,7 @@ async function leave(drv){
         await drv.wait(until.elementIsVisible(btn));
         await btn.click();
     }
-    await wait(500);
+    await wait(700);
 }
 
 module.exports = {

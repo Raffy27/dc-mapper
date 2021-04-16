@@ -14,7 +14,7 @@ module.exports = (drv) => {
             let text;
             await drv.wait(async _drv => {
                 text = await status.getText();
-                return !text.includes('Searching') || text.includes('Indexing');
+                return !text.includes('Searching');
             });
             if(text.includes('No Results')) return;
             //Servers that are not yet indexed will be skipped
