@@ -21,7 +21,10 @@ module.exports = {
             let options = {
                 responseType: 'json',
                 retry: 0,
-                timeout: 10000
+                timeout: 10000,
+                headers: {
+                    'user-agent': 'Whoo'
+                }
             };
             if(p){
                 options.agent = {

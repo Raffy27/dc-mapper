@@ -74,7 +74,8 @@ async function main(){
     roots = require('./iterators/roots')(drv),
     pages = require('./iterators/pages')(drv),
     messages = require('./iterators/messages')(drv);
-    
+
+    console.log('Logging in');
     await login(drv);
 
     let queue = new Map();//[['wat', { code: '4RXbWnc', name: 'Nope' }]]);
