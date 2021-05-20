@@ -15,12 +15,12 @@ For a summary of the algorithm, and possible use cases, see my blog post at [Omi
 * Export a version compatible with graph visualization libraries
 
 ## Screenshots
+[Prototype in action](https://lensdump.com/i/Z2qWEr)
 <details>
     <summary>Show screenshots</summary>
     <img alt="Resulting graph #1" src="https://i.lensdump.com/i/Z21cvv.png">
     <img alt="Resulting graph #2" src="https://i.lensdump.com/i/Z21U92.png">
     <img alt="Resulting graph #3" src="https://i2.lensdump.com/i/Z21xHz.png">
-    <img alt="Prototype in action" src="https://i2.lensdump.com/i/Z2qWEr.gif">
 </details>
 
 ## How to use
