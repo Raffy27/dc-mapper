@@ -3,7 +3,7 @@ A small script for mapping partnerships between different Discord servers and da
 
 Since the online interface of Discord is prone to change, the current algorithms will most likely refuse to work with newer versions. This is just a quick 'n dirty, proof of concept script. Expect spectacular bugs.
 
-For a summary of the algorithm, and possible use cases, see my blog post at [Ominous.tech](https://ominous.tech/kie-a-hatalom/).
+For a summary of the algorithm, and possible use cases, see my blog post at [Ominous.tech](https://ominous.tech/posts/kie-a-hatalom/).
 
 ## Features
 * Login with session token or email/password
